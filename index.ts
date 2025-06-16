@@ -10,8 +10,50 @@ import { initial_fs_setup } from "ollieos/src/initial_fs_setup";
 
 import { version } from "ollieos/package.json";
 
+const make_keyboard_event = (input: string) => {
+    const key_code = input.charCodeAt(0);
+    const is_ctrl = key_code < 32 && key_code !== 13 && key_code !== 10;
+
+    const base = {
+        key: input,
+        code: `Key${input.toUpperCase()}`,
+        keyCode: key_code,
+        ctrlKey: is_ctrl,
+        altKey: false,
+        shiftKey: false,
+        metaKey: false,
+    };
+
+    return <KeyboardEvent>new Proxy(base, {
+        get(target, prop) {
+            if (prop in target) {
+                return target[prop as keyof typeof target];
+            }
+            console.warn(`Attempt to access non-existent property '${String(prop)}' on fake KeyboardEvent`);
+            return undefined;
+        },
+    });
+}
+
 const loaded = (term: WrappedTerminal) => {
     term.insert_preline();
+
+    // set up keypress events
+    process.stdin.setRawMode(true);
+    process.stdin.on("data", (data: Buffer) => {
+        const key_str = data.toString();
+
+        if (key_str === "\u0003") { // Ctrl+C
+            process.exit(0);
+        }
+
+        const dom_keyboard_event = make_keyboard_event(key_str);
+
+        term._enqueue_key_event({
+            key: key_str,
+            domEvent: dom_keyboard_event,
+        });
+    });
 }
 
 const main = async () => {
