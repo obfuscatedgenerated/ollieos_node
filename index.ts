@@ -10,18 +10,74 @@ import { initial_fs_setup } from "ollieos/src/initial_fs_setup";
 
 import { version } from "ollieos/package.json";
 
-const make_keyboard_event = (input: string) => {
-    const key_code = input.charCodeAt(0);
-    const is_ctrl = key_code < 32 && key_code !== 13 && key_code !== 10;
+import * as readline from "node:readline";
+
+const key_to_code = (name: string | undefined) => {
+    if (!name) {
+        return "Unidentified";
+    }
+
+    // Handle letters
+    if (/^[a-zA-Z]$/.test(name)) {
+        return 'Key' + name.toUpperCase();
+    }
+
+    // Handle digits
+    if (/^[0-9]$/.test(name)) {
+        return 'Digit' + name;
+    }
+
+    // Common symbol and control keys
+    // TODO: more jank, please someone make a library!!!
+    const keyMap = {
+        'Enter': 'Enter',
+        'Backspace': 'Backspace',
+        'Tab': 'Tab',
+        ' ': 'Space',
+        'Escape': 'Escape',
+        'Esc': 'Escape',
+        'Shift': 'ShiftLeft', // assume left
+        'Control': 'ControlLeft',
+        'Alt': 'AltLeft',
+        'Meta': 'MetaLeft',
+        'ArrowUp': 'ArrowUp',
+        'ArrowDown': 'ArrowDown',
+        'ArrowLeft': 'ArrowLeft',
+        'ArrowRight': 'ArrowRight',
+        '-': 'Minus',
+        '=': 'Equal',
+        '[': 'BracketLeft',
+        ']': 'BracketRight',
+        '\\': 'Backslash',
+        ';': 'Semicolon',
+        "'": 'Quote',
+        ',': 'Comma',
+        '.': 'Period',
+        '/': 'Slash',
+        '`': 'Backquote',
+        'Delete': 'Delete',
+    };
+
+    return keyMap[name] || null;
+}
+
+const make_keyboard_event = (char: string, key: readline.Key) => {
+    const key_code = char.charCodeAt(0);
+
+    // put keyname in title case if not a single character
+    // TODO: this is jank, someone needs to make a proper mapping for these
+    if (key.name && key.name.length > 1) {
+        key.name = key.name.charAt(0).toUpperCase() + key.name.slice(1);
+    }
 
     const base = {
-        key: input,
-        code: `Key${input.toUpperCase()}`,
+        key: key.name,
+        code: key_to_code(key.name) || "Unidentified",
         keyCode: key_code,
-        ctrlKey: is_ctrl,
+        ctrlKey: key.ctrl,
         altKey: false,
-        shiftKey: false,
-        metaKey: false,
+        shiftKey: key.shift,
+        metaKey: key.meta
     };
 
     return <KeyboardEvent>new Proxy(base, {
@@ -39,18 +95,46 @@ const loaded = (term: WrappedTerminal) => {
     term.insert_preline();
 
     // set up keypress events
+    readline.emitKeypressEvents(process.stdin);
     process.stdin.setRawMode(true);
-    process.stdin.on("data", (data: Buffer) => {
-        const key_str = data.toString();
+    process.stdin.resume();
 
-        if (key_str === "\u0003") { // Ctrl+C
+    process.stdin.on("keypress", (char: string, key: readline.Key) => {
+        if (char === "\u0003") { // Ctrl+C
             process.exit(0);
         }
 
-        const dom_keyboard_event = make_keyboard_event(key_str);
+        // TODO: hide unhandled key event console warning
+
+        // handle special keys
+        // TODO: JANK!
+        if (key.name === "escape") {
+            char = "\x1b";
+        } else if (key.name === "delete") {
+            char = "\x7f";
+        } else if (key.name === "up") {
+            key.name = "ArrowUp";
+            char = "\x1b[A";
+        } else if (key.name === "down") {
+            key.name = "ArrowDown";
+            char = "\x1b[B";
+        } else if (key.name === "left") {
+            key.name = "ArrowLeft";
+            char = "\x1b[D";
+        } else if (key.name === "right") {
+            key.name = "ArrowRight";
+            char = "\x1b[C";
+        }
+
+        if (!char) {
+            char = ""; // prevent undefined from being sent
+            console.warn("Improperly handled special key:", key.name);
+        }
+
+        const dom_keyboard_event = make_keyboard_event(char, key);
 
         term._enqueue_key_event({
-            key: key_str,
+            key: char,
             domEvent: dom_keyboard_event,
         });
     });
