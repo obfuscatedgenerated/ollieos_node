@@ -172,6 +172,13 @@ const main = async () => {
         return old_execute(line, false);
     };
 
+    // override term.reset
+    const old_reset = term.reset.bind(term);
+    term.reset = () => {
+        old_reset();
+        console.clear();
+    };
+
     // // push xterm stdout to the terminal
     // term.onData((data: string) => {
     //     process.stdout.write(data);
