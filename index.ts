@@ -77,7 +77,6 @@ const main = async () => {
     term.initialise(loaded);
 
     // read the version variable ($VERSION)
-    console.log("OllieOS Version:", version);
     term.set_variable("VERSION", version);
 }
 
