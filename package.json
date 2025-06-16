@@ -2,9 +2,9 @@
   "name": "ollieos_node",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "tsx index.ts"
+    "start": "tsx src/index.ts"
   },
   "keywords": [],
   "author": "obfuscatedgenerated",
