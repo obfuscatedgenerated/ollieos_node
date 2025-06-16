@@ -11,7 +11,7 @@ import { initial_fs_setup } from "ollieos/src/initial_fs_setup";
 import { version } from "ollieos/package.json";
 
 const loaded = (term: WrappedTerminal) => {
-
+    term.insert_preline();
 }
 
 const main = async () => {
