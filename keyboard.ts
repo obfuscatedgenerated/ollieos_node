@@ -87,6 +87,7 @@ export const setup_keypress_events = (term: WrappedTerminal) => {
 
     process.stdin.on("keypress", (char: string, key: readline.Key) => {
         if (char === "\u0003") { // Ctrl+C
+            // TODO: remove this but fix shutdown
             process.exit(0);
         }
 

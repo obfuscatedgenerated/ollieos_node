@@ -1,6 +1,8 @@
 import { LocalStorage } from "node-localstorage";
 globalThis.localStorage = new LocalStorage("./ollieos_storage");
 
+import "ollieos/src/load_global_externals";
+
 import { ProgramRegistry } from "ollieos/src/prog_registry";
 import * as programs from "ollieos/src/programs/@ALL";
 
