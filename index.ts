@@ -1,5 +1,5 @@
 import { LocalStorage } from "node-localstorage";
-globalThis.localStorage = new LocalStorage("./ollieos_storage");
+globalThis.localStorage = new LocalStorage("./ollieos_storage/localstorage");
 
 import "ollieos/src/load_global_externals";
 
@@ -7,7 +7,7 @@ import { ProgramRegistry } from "ollieos/src/prog_registry";
 import * as programs from "ollieos/src/programs/@ALL";
 
 import { WrappedTerminal } from "ollieos/src/term_ctl";
-import { LocalStorageFS } from "ollieos/src/fs_impl/localstorage";
+import { RealFS } from "./real_fs";
 import { initial_fs_setup } from "ollieos/src/initial_fs_setup";
 
 import { version } from "ollieos/package.json";
@@ -31,7 +31,7 @@ const main = async () => {
 
 
     // create a filesystem
-    const oo_fs = new LocalStorageFS();
+    const oo_fs = new RealFS();
 
     // create initial files
     initial_fs_setup(oo_fs);
