@@ -10,11 +10,15 @@
   "author": "obfuscatedgenerated",
   "license": "MIT",
   "dependencies": {
+    "canvas": "^3.1.0",
     "node-localstorage": "^3.0.5",
     "ollieos": "github:obfuscatedgenerated/obfuscatedgenerated.github.io"
   },
   "devDependencies": {
     "@types/node-localstorage": "^1.3.3",
     "tsx": "^4.20.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

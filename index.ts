@@ -1,5 +1,4 @@
-import { LocalStorage } from "node-localstorage";
-globalThis.localStorage = new LocalStorage("./ollieos_storage/localstorage");
+import "./browser_polyfills";
 
 import "ollieos/src/load_global_externals";
 
