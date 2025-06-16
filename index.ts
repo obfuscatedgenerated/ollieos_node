@@ -75,6 +75,14 @@ const main = async () => {
         process.stdout.write(data + "\n");
     };
 
+    // set terminal size
+    term.resize(process.stdout.columns, process.stdout.rows);
+
+    // listen for SIGWINCH to resize the terminal
+    process.on("SIGWINCH", () => {
+        term.resize(process.stdout.columns, process.stdout.rows);
+    });
+
     // finalise the init process now our changes are made
     term.initialise(loaded);
 
