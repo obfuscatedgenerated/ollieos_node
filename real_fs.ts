@@ -170,18 +170,17 @@ export class RealFS extends AbstractFileSystem {
     }
 
     set_readonly_direct(path: string, readonly: boolean): void {
-        const resolved_path = resolve_real_path(path);
         const readonly_list = JSON.parse(fs.readFileSync(readonly_list_path, "utf-8")) as string[];
 
         if (readonly) {
             // add to readonly list if not already present
-            if (!readonly_list.includes(resolved_path)) {
-                readonly_list.push(resolved_path);
+            if (!readonly_list.includes(path)) {
+                readonly_list.push(path);
                 fs.writeFileSync(readonly_list_path, JSON.stringify(readonly_list, null, 2));
             }
         } else {
             // remove from readonly list if present
-            const index = readonly_list.indexOf(resolved_path);
+            const index = readonly_list.indexOf(path);
             if (index !== -1) {
                 readonly_list.splice(index, 1);
                 fs.writeFileSync(readonly_list_path, JSON.stringify(readonly_list, null, 2));
