@@ -1,3 +1,6 @@
+globalThis.window = globalThis;
+// note that this breaks nodejs detection with typeof window, but we will provide a marker that it is running in node through a global and term variable
+
 import { LocalStorage } from "node-localstorage";
 globalThis.localStorage = new LocalStorage("./ollieos_storage/localstorage");
 

@@ -1,6 +1,7 @@
+import "ollieos/src/load_global_externals";
 import "./browser_polyfills";
 
-import "ollieos/src/load_global_externals";
+globalThis.OLLIEOS_NODE = true;
 
 import { ProgramRegistry } from "ollieos/src/prog_registry";
 import * as programs from "ollieos/src/programs/@ALL";
@@ -87,6 +88,8 @@ const main = async () => {
 
     // read the version variable ($VERSION)
     term.set_variable("VERSION", version);
+
+    term.set_variable("ENV", "node");
 }
 
 main();
