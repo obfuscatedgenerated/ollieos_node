@@ -16,6 +16,8 @@ npm i
 
 `npm start`
 
+For best results, use a modern terminal with support for a variety of ANSI escape codes and Sixel graphics, such as Windows Terminal.
+
 ## Updating wrapper
 
 `git pull origin main`
