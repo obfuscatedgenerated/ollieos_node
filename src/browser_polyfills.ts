@@ -47,3 +47,38 @@ globalThis.document.createElement = (tagName, options) => {
     console.warn(`Creating element <${tagName}> is not supported in this environment.`);
     return null;
 };
+
+import open from "open";
+import { URL } from "node:url";
+
+// open urls in browser
+globalThis.location = {
+    assign(url) {
+        if (url instanceof URL) {
+            url = url.toString();
+        }
+
+        open(url);
+    },
+
+    replace(url: string | URL) {
+        this.assign(url);
+        process.exit(0);
+    },
+
+    reload() {
+        // TODO: restart the app somehow?
+        process.exit(0);
+    }
+}
+
+Object.defineProperty(globalThis.location, "href", {
+    get() {
+        return "https://ollieg.codes";
+    },
+    set(value) {
+        location.assign(value);
+    }
+});
+
+globalThis.close = () => { process.exit(0); };
