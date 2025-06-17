@@ -149,8 +149,7 @@ export class RealFS extends AbstractFileSystem {
             throw new PathNotFoundError(src);
         }
 
-        console.log(`Moving directory from ${src_resolved} to ${dest_resolved}`);
-        //fs.renameSync(src_resolved, dest_resolved);
+        fs.renameSync(src_resolved, dest_resolved);
     }
 
     move_file_direct(src: string, new_path: string): void {
