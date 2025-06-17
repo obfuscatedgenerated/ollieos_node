@@ -44,6 +44,8 @@ export class RealFS extends AbstractFileSystem {
                 const filename_forward_slash = filename.replace(/\\/g, "/");
                 const filename_rooted = "/" + filename_forward_slash;
 
+                // TODO: how should line ending conversion be handled? or not at all?
+
                 this.force_remove_from_cache(filename_rooted);
             }
         });
