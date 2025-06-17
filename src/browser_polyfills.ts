@@ -5,6 +5,7 @@ import { LocalStorage } from "node-localstorage";
 globalThis.localStorage = new LocalStorage("./ollieos_storage/localstorage");
 
 import { Image, createCanvas } from "canvas";
+// TODO: seems to break when loading blob from nodedata, which makes ascmagine hang
 globalThis.Image = Image;
 
 globalThis.document = {};
