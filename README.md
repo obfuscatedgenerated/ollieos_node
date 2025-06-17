@@ -24,11 +24,14 @@ npm i
 
 For best results, use a modern terminal with support for a variety of ANSI escape codes and Sixel graphics, such as Windows Terminal.
 
-## Updating wrapper
+## Updating wrapper (and OS)
 
-`git pull origin main`
+```
+git pull origin main
+npm i
+```
 
-## Updating OS
+## Updating only OS
 
 `npm update ollieos`
 
