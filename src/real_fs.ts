@@ -10,7 +10,8 @@ const resolve_real_path = (in_path: string): string => {
     const stripped_input = in_path.replace(/^[/\\]+/, "")
     const resolved_path = nodepath.resolve(root_dir, stripped_input);
 
-    if (!resolved_path.startsWith(root_dir + nodepath.sep)) {
+    // traversal if the resolved path does not start with the root directory with separator (or is not the root directory itself without the separator)
+    if (!resolved_path.startsWith(root_dir + nodepath.sep) && resolved_path !== root_dir) {
         throw new Error(`Path traversal detected: ${in_path}`);
     }
 
