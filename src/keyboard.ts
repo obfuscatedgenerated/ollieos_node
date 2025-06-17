@@ -16,6 +16,12 @@ const key_to_code = (name: string | undefined) => {
         return 'Digit' + name;
     }
 
+    // handle function keys
+    if (name.startsWith("F") && (name.length === 2 || name.length === 3)) {
+        const num = parseInt(name.slice(1), 10);
+        return `F${num}`;
+    }
+
     // Common symbol and control keys
     // TODO: more jank, please someone make a library!!!
     const keyMap = {
@@ -117,6 +123,28 @@ export const setup_keypress_events = (term: WrappedTerminal) => {
         } else if (key.name === "right") {
             key.name = "ArrowRight";
             char = "\x1b[C";
+        } else if (key.name?.startsWith("f") && (key.name.length === 2 || key.name.length === 3)) {
+            // Function keys like F1, F2, etc.
+            key.name = key.name.toUpperCase();
+
+            // determine char from bonkers process (what were they thinking)
+            const number = parseInt(key.name.slice(1));
+            if (number === 1) {
+                char = "\x1bOP"; // F1
+            } else if (number === 2) {
+                char = "\x1bOQ"; // F2
+            } else if (number === 3) {
+                char = "\x1bOR"; // F3
+            } else if (number === 4) {
+                char = "\x1bOS"; // F4
+            } else if (number === 5) {
+                char = "\x1b[15~"; // F5
+            } else if (number >= 6 && number <= 10) {
+                char = `\x1b[${number + 11}~`; // F6 - F10
+            } else if (number >= 11) {
+                char = `\x1b[${number + 12}~`; // F11, F12, etc.
+                // if this doesn't work for your keyboard with more than 12 function keys, then that's a shame isn't it
+            }
         }
 
         if (!char) {
