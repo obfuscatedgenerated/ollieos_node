@@ -38,7 +38,7 @@ export class RealFS extends AbstractFileSystem {
         }
 
         // set up a watcher so that if any files in the root directory are changed, we clear the cache
-        this._watcher = fs.watch(root_dir, { recursive: true }, (eventType, filename) => {
+        this._watcher = fs.watch(root_dir, { recursive: true }, (_type, filename) => {
             if (filename) {
                 const filename_forward_slash = filename.replace(/\\/g, "/");
                 const filename_rooted = "/" + filename_forward_slash;
