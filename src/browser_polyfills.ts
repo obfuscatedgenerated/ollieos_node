@@ -69,6 +69,7 @@ globalThis.location = {
 
     reload() {
         // TODO: restart the app somehow?
+        console.warn("Reload not supported, please run the program again to continue.");
         process.exit(0);
     }
 }
@@ -87,3 +88,6 @@ globalThis.close = () => { process.exit(0); };
 globalThis.open = (url: string | URL, target?: string) => {
     location.assign(url);
 }
+
+import { DOMParser } from "linkedom";
+globalThis.DOMParser = DOMParser;

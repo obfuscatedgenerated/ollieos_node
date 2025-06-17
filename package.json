@@ -11,6 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "canvas": "^3.1.0",
+    "linkedom": "^0.18.11",
     "node-localstorage": "^3.0.5",
     "ollieos": "github:obfuscatedgenerated/obfuscatedgenerated.github.io",
     "open": "^10.1.2"
