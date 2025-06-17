@@ -53,7 +53,7 @@ const key_to_code = (name: string | undefined) => {
         'Delete': 'Delete',
     };
 
-    return keyMap[name] || null;
+    return keyMap[name] || "Unidentified";
 }
 
 const make_keyboard_event = (char: string, key: readline.Key) => {
@@ -67,7 +67,7 @@ const make_keyboard_event = (char: string, key: readline.Key) => {
 
     const base = {
         key: key.name,
-        code: key_to_code(key.name) || "Unidentified",
+        code: key_to_code(key.name),
         keyCode: key_code,
         ctrlKey: key.ctrl,
         altKey: false,
