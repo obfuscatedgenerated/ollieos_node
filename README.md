@@ -2,6 +2,12 @@
 
 A port of my website, OllieOS to a real terminal environment via a Node.js wrapper.
 
+Aims:
+- Provide an almost complete port of the OllieOS website to a terminal environment.
+- Have it be suitable for package testing and development.
+- Interface with the real filesystem for easy editing.
+- Polyfill browser features with Node.js equivalents, whilst avoiding full DOM emulation.
+
 (WIP)
 
 ## Installing
