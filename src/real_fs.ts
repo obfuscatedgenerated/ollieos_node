@@ -18,6 +18,8 @@ const resolve_real_path = (in_path: string): string => {
 }
 
 export class RealFS extends AbstractFileSystem {
+    _watcher: fs.FSWatcher | null = null;
+
     get_unique_fs_type_name(): string {
         return "real";
     }
@@ -36,7 +38,7 @@ export class RealFS extends AbstractFileSystem {
         }
 
         // set up a watcher so that if any files in the root directory are changed, we clear the cache
-        fs.watch(root_dir, { recursive: true }, (eventType, filename) => {
+        this._watcher = fs.watch(root_dir, { recursive: true }, (eventType, filename) => {
             if (filename) {
                 const filename_forward_slash = filename.replace(/\\/g, "/");
                 const filename_rooted = "/" + filename_forward_slash;
@@ -47,8 +49,20 @@ export class RealFS extends AbstractFileSystem {
     }
 
     erase_all(): void {
+        // stop watcher
+        if (this._watcher) {
+            this._watcher.close();
+            this._watcher = null;
+        }
+
+        // delete the fake root directory
         if (fs.existsSync(root_dir)) {
             fs.rmSync(root_dir, { recursive: true, force: true });
+        }
+
+        // delete the readonly list
+        if (fs.existsSync(readonly_list_path)) {
+            fs.rmSync(readonly_list_path, { force: true });
         }
     }
 
@@ -89,12 +103,6 @@ export class RealFS extends AbstractFileSystem {
     exists_direct(path: string): boolean {
         const resolved_path = resolve_real_path(path);
         return fs.existsSync(resolved_path);
-    }
-
-    is_readonly_direct(path: string): boolean {
-        const resolved_path = resolve_real_path(path);
-        const readonly_list = JSON.parse(fs.readFileSync(readonly_list_path, "utf-8")) as string[];
-        return readonly_list.includes(resolved_path);
     }
 
     list_dir(path: string, dirs_first?: boolean): string[] {
@@ -167,6 +175,11 @@ export class RealFS extends AbstractFileSystem {
         // read the file
         const data = fs.readFileSync(resolved_path);
         return as_uint ? new Uint8Array(data) : data.toString();
+    }
+
+    is_readonly_direct(path: string): boolean {
+        const readonly_list = JSON.parse(fs.readFileSync(readonly_list_path, "utf-8")) as string[];
+        return readonly_list.includes(path);
     }
 
     set_readonly_direct(path: string, readonly: boolean): void {
