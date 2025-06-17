@@ -54,11 +54,12 @@ import { URL } from "node:url";
 // open urls in browser
 globalThis.location = {
     assign(url) {
-        if (url instanceof URL) {
-            url = url.toString();
+        if (!(url instanceof URL)) {
+            // convert relative paths to urls of ollieg.codes
+            url = new URL(url, "https://ollieg.codes/");
         }
 
-        open(url);
+        open(url.toString());
     },
 
     replace(url: string | URL) {
@@ -82,3 +83,7 @@ Object.defineProperty(globalThis.location, "href", {
 });
 
 globalThis.close = () => { process.exit(0); };
+
+globalThis.open = (url: string | URL, target?: string) => {
+    location.assign(url);
+}
