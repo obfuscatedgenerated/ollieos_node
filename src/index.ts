@@ -75,6 +75,13 @@ const main = async () => {
         process.stdout.write(data + "\n");
     };
 
+    // override term.dispose for shutdown
+    const old_dispose = term.dispose.bind(term);
+    term.dispose = () => {
+        old_dispose();
+        process.exit(0);
+    };
+
     // set terminal size
     term.resize(process.stdout.columns, process.stdout.rows);
 
