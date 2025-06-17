@@ -48,7 +48,7 @@ globalThis.document.createElement = (tagName, options) => {
     return null;
 };
 
-import open from "open";
+import open_path from "open";
 import { URL } from "node:url";
 
 // open urls in browser
@@ -59,7 +59,7 @@ globalThis.location = {
             url = new URL(url, "https://ollieg.codes/");
         }
 
-        open(url.toString());
+        open_path(url.toString());
     },
 
     replace(url: string | URL) {
