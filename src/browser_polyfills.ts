@@ -5,7 +5,37 @@ import { LocalStorage } from "node-localstorage";
 globalThis.localStorage = new LocalStorage("./ollieos_storage/localstorage");
 
 import { Image, createCanvas } from "canvas";
-// TODO: seems to break when loading blob from nodedata, which makes ascmagine hang
+import { resolveObjectURL } from "node:buffer";
+
+// redefine src property setter to fix blobs into data urls (nodedata blob object urls don't work properly with Image.src)
+const old_image_src_prop = Object.getOwnPropertyDescriptor(Image.prototype, "src")!;
+Object.defineProperty(Image.prototype, "src", {
+    set(value) {
+        // if the value is a blob url, convert it to a data URL
+        if (typeof value === "string" && value.startsWith("blob:")) {
+            const blob = resolveObjectURL(value);
+
+            if (blob) {
+                // convert blob to base 64 with buffers and infer type
+                blob.arrayBuffer().then((buffer) => {
+                    const b64 = Buffer.from(buffer).toString("base64");
+                    const mime = blob.type || "application/octet-stream";
+
+                    const data_url = `data:${mime};base64,${b64}`;
+                    old_image_src_prop.set!.call(this, data_url);
+                });
+            } else {
+                throw new Error(`Failed to resolve blob URL: ${value}`);
+            }
+        } else {
+            // otherwise, just set the src as is
+            old_image_src_prop.set!.call(this, value);
+        }
+    },
+    get: old_image_src_prop.get,
+    configurable: true,
+});
+
 globalThis.Image = Image;
 
 globalThis.document = {};
