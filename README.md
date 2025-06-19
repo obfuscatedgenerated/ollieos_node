@@ -50,3 +50,9 @@ You can access the fs directory easily by running `appdata` in the OllieOS termi
 You can edit these files directly, and they will be reflected in the OS.
 
 Line endings should be **CRLF** and **will not be converted** to avoid breaking binary files.
+
+## Node specific programs
+
+The following additional programs are provided by the wrapper and registered in the OS:
+- `appdata`: Opens the app data directory as previously described.
+- `update`: [Updates the OS](# Updating only OS) to the latest version (not the wrapper).
