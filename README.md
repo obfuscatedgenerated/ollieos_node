@@ -24,7 +24,7 @@ npm i
 
 For best results, use a modern terminal with support for a variety of ANSI escape codes and Sixel graphics, such as Windows Terminal.
 
-You can also run `npm run start -- --no-clear` to disable the initial terminal clear, which may be useful for debugging.
+You can also run `npm run start -- -- --no-clear` to disable the initial terminal clear, which may be useful for debugging.
 
 ## Node specific programs
 
