@@ -24,6 +24,13 @@ npm i
 
 For best results, use a modern terminal with support for a variety of ANSI escape codes and Sixel graphics, such as Windows Terminal.
 
+## Node specific programs
+
+The following additional programs are provided by the wrapper and registered in the OS:
+- `appdata`: Opens the [app data directory.](#editing-files)
+- `update`: [Updates the OS](#updating-only-os) to the latest version (not the wrapper).
+
+
 ## Updating wrapper (and OS)
 
 ```
@@ -50,9 +57,3 @@ You can access the fs directory easily by running `appdata` in the OllieOS termi
 You can edit these files directly, and they will be reflected in the OS.
 
 Line endings should be **CRLF** and **will not be converted** to avoid breaking binary files.
-
-## Node specific programs
-
-The following additional programs are provided by the wrapper and registered in the OS:
-- `appdata`: Opens the app data directory as previously described.
-- `update`: [Updates the OS](#updating-only-os) to the latest version (not the wrapper).
