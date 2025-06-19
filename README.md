@@ -30,6 +30,15 @@ The following additional programs are provided by the wrapper and registered in 
 - `appdata`: Opens the [app data directory.](#editing-files)
 - `update`: [Updates the OS](#updating-only-os) to the latest version (not the wrapper).
 
+## Adding OllieOS to your PATH
+
+`npm link`
+
+The OS can now be run from anywhere by typing `ollieos` in your terminal.
+
+You can remove this link with:
+
+`npm rm --global ollieos_node`
 
 ## Updating wrapper (and OS)
 
