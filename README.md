@@ -6,7 +6,7 @@ A terminal-based port of [OllieOS](https://github.com/obfuscatedgenerated/obfusc
 
 - Provide a near-complete terminal version of the OllieOS website.
 - Enable package testing and development within the environment.
-- Integrate with the real filesystem for seamless editing.
+- Integrate with the [real filesystem for seamless editing.](#editing-files)
 - Polyfill browser features using Node.js, without full DOM emulation.
 
 ---
