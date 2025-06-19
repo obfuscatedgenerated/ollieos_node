@@ -8,8 +8,6 @@ Aims:
 - Interface with the real filesystem for easy editing.
 - Polyfill browser features with Node.js equivalents, whilst avoiding full DOM emulation.
 
-(WIP)
-
 ## Installing
 
 ```
