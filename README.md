@@ -45,6 +45,8 @@ The OS stores files in your app data directory:
 - Mac OS: `~/Library/Application Support/ollieos`
 - Linux: `~/.config/ollieos`
 
+You can access the fs directory easily by running `appdata` in the OllieOS terminal.
+
 You can edit these files directly, and they will be reflected in the OS.
 
 Line endings should be **CRLF** and **will not be converted** to avoid breaking binary files.

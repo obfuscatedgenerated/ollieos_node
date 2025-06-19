@@ -5,6 +5,7 @@ globalThis.OLLIEOS_NODE = true;
 
 import { ProgramRegistry } from "ollieos/src/prog_registry";
 import * as programs from "ollieos/src/programs/@ALL";
+import * as node_programs from "./node_programs/@ALL";
 
 import { WrappedTerminal } from "ollieos/src/term_ctl";
 import { RealFS } from "./real_fs";
@@ -23,6 +24,14 @@ const main = async () => {
     // create a program registry by importing all programs
     const prog_reg = new ProgramRegistry();
     for (const prog of Object.values(programs)) {
+        prog_reg.registerProgram({
+            program: prog,
+            built_in: true,
+        });
+    }
+
+    // also inject our node specific programs
+    for (const prog of Object.values(node_programs)) {
         prog_reg.registerProgram({
             program: prog,
             built_in: true,
