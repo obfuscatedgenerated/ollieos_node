@@ -24,6 +24,8 @@ npm i
 
 For best results, use a modern terminal with support for a variety of ANSI escape codes and Sixel graphics, such as Windows Terminal.
 
+You can also run `npm run start-no-clear` to disable the initial terminal clear, which may be useful for debugging.
+
 ## Node specific programs
 
 The following additional programs are provided by the wrapper and registered in the OS:
@@ -34,7 +36,9 @@ The following additional programs are provided by the wrapper and registered in 
 
 `npm link`
 
-The OS can now be run from anywhere by typing `ollieos` in your terminal. This uses a symlink, so updates to the cloned repository will be reflected in the global command.
+This uses a symlink, so updates to the cloned repository will be reflected in the global command.
+
+The OS can now be run from anywhere by typing `ollieos` in your terminal. You can pass `--no-clear` to disable the initial terminal clear.
 
 You can remove this link with:
 

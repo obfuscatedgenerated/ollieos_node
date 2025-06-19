@@ -99,6 +99,11 @@ const main = async () => {
         term.resize(process.stdout.columns, process.stdout.rows);
     });
 
+    // clear the console if --no-clear is not set (looks cleaner)
+    if (!process.argv.includes("--no-clear")) {
+        console.clear();
+    }
+
     // finalise the init process now our changes are made
     term.initialise(loaded);
 
