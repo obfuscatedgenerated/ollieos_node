@@ -34,7 +34,7 @@ The following additional programs are provided by the wrapper and registered in 
 
 `npm link`
 
-The OS can now be run from anywhere by typing `ollieos` in your terminal.
+The OS can now be run from anywhere by typing `ollieos` in your terminal. This uses a symlink, so updates to the cloned repository will be reflected in the global command.
 
 You can remove this link with:
 
