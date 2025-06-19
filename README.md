@@ -55,4 +55,4 @@ Line endings should be **CRLF** and **will not be converted** to avoid breaking 
 
 The following additional programs are provided by the wrapper and registered in the OS:
 - `appdata`: Opens the app data directory as previously described.
-- `update`: [Updates the OS](# Updating only OS) to the latest version (not the wrapper).
+- `update`: [Updates the OS](#updating-only-os) to the latest version (not the wrapper).
