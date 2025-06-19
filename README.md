@@ -37,6 +37,14 @@ npm i
 
 ## Editing files
 
-The program ships with the `RealFS` filesystem implementation. This means the OS stores files to `ollieos_storage` in the directory you run the program from. You can edit these files directly, and they will be reflected in the OS.
+The program ships with the `RealFS` filesystem implementation. 
+
+The OS stores files in your app data directory:
+
+- Windows: `%appdata%/ollieos`
+- Mac OS: `~/Library/Application Support/ollieos`
+- Linux: `~/.config/ollieos`
+
+You can edit these files directly, and they will be reflected in the OS.
 
 Line endings should be **CRLF** and **will not be converted** to avoid breaking binary files.

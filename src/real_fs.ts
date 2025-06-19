@@ -3,8 +3,10 @@ import {AbstractFileSystem, NonRecursiveDirectoryError, PathNotFoundError} from 
 import fs from "node:fs";
 import nodepath from "node:path";
 
-const root_dir = nodepath.resolve("./ollieos_storage/fs");
-const readonly_list_path = nodepath.resolve("./ollieos_storage/fs_readonly_list.json");
+import { appdata } from "./util";
+
+const root_dir = nodepath.resolve(appdata("ollieos/fs"));
+const readonly_list_path = nodepath.resolve(appdata("ollieos/fs_readonly_list.json"));
 
 const resolve_real_path = (in_path: string): string => {
     const stripped_input = in_path.replace(/^[/\\]+/, "")
