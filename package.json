@@ -4,8 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "tsx src/index.ts",
-    "start-no-clear": "tsx src/index.ts --no-clear"
+    "start": "tsx src/index.ts"
   },
   "keywords": [],
   "author": "obfuscatedgenerated",
