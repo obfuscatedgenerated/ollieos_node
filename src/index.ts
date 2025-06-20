@@ -123,6 +123,7 @@ const main = async () => {
         // read stdin and write it to the terminal
         let input = "";
         let have_leftover = false;
+        let wait_for_finish = false;
         process.stdin.on("data", async (chunk) => {
             input += chunk.toString();
 
@@ -133,7 +134,9 @@ const main = async () => {
                 const leftover = split_command.join("\n");
 
                 // execute the command
+                wait_for_finish = true;
                 await term.execute(current_command.trim());
+                wait_for_finish = false;
 
                 // reset the input to the remaining part
                 input = leftover;
@@ -142,6 +145,13 @@ const main = async () => {
         });
 
         process.stdin.on("end", async () => {
+            // if wait_for_finish is true, make sure to wait for it to be false so we don't interrupt the current command
+            // (fixes out of order execution / early killing race conditions)
+            while (wait_for_finish) {
+                // make sure to yield to avoid blocking the event loop
+                await new Promise(resolve => setTimeout(resolve, 20));
+            }
+
             // if there is leftover input, execute it
             if (have_leftover) {
                 await term.execute(input.trim());
