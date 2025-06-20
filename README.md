@@ -66,6 +66,12 @@ Pass `--no-clear` to skip terminal clearing:
 ollieos --no-clear
 ```
 
+You can pipe commands split by newlines into OllieOS:
+
+```bash
+echo "cat credits.txt" | ollieos
+```
+
 To remove the global link:
 
 ```bash
