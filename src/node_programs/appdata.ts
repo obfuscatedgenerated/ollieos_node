@@ -18,6 +18,7 @@ export default {
 
         // wait for child process to close its pipes
         // (fix early killing when piping "appdata" into ollieos)
+        // this hack primarily solves windows issues but i have no idea how it behaves on other platforms (please raise an issue if it gets stuck!)
         await new Promise((resolve) => {
             child.on("close", resolve);
         });

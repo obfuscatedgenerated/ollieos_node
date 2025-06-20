@@ -1,5 +1,5 @@
 import "ollieos/src/load_global_externals";
-import "./browser_polyfills";
+import {wait_for_safe_close} from "./browser_polyfills";
 
 globalThis.OLLIEOS_NODE = true;
 
@@ -86,7 +86,13 @@ const main = async () => {
 
     // override term.dispose for shutdown
     const old_dispose = term.dispose.bind(term);
-    term.dispose = () => {
+    term.dispose = async () => {
+        // check that browser polyfills is happy to close, wait if not
+        // this is a hack to fix "open" from being async, but location.assign having to be sync
+        // such that if a program was trying to open something but we are closing, it will wait for the open to finish
+        // this hack primarily solves windows issues but i have no idea how it behaves on other platforms (please raise an issue if it gets stuck!)
+        await wait_for_safe_close();
+
         old_dispose();
         process.exit(0);
     };

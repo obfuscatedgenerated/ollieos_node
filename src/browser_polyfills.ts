@@ -53,6 +53,30 @@ globalThis.document.createElement = (tagName, options) => {
 import open_path from "open";
 import { URL } from "node:url";
 
+let await_this_before_close: Promise<{on: (event: string, callback: (value: unknown) => void) => void}> | null = null;
+export const wait_for_safe_close = async () => {
+    if (await_this_before_close) {
+        const child_process = await await_this_before_close;
+
+        // set a timeout to ensure we don't wait forever
+        // since we don't know what they're trying to open, it may not act as expected
+        setTimeout(() => {
+            if (await_this_before_close) {
+                console.warn("Timed out waiting for child process to close its pipes.");
+                await_this_before_close = null;
+            }
+        }, 5000);
+
+        // wait for the child process to close its pipes
+        // this hack primarily solves windows issues but i have no idea how it behaves on other platforms (please raise an issue if it gets stuck!)
+        await new Promise((resolve) => {
+            child_process.on("close", resolve);
+        });
+
+        await_this_before_close = null;
+    }
+}
+
 // open urls in browser
 globalThis.location = {
     assign(url) {
@@ -61,7 +85,10 @@ globalThis.location = {
             url = new URL(url, "https://ollieg.codes/");
         }
 
-        open_path(url.toString());
+        // this is a hack to ensure we actually open the applications requested before stopping the os
+        // e.g. it fixes echo "repo" | ollieos
+        // this would be so much simpler if location.assign was async... sigh
+        await_this_before_close = open_path(url.toString());
     },
 
     replace(url: string | URL) {
