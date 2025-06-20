@@ -89,6 +89,11 @@ const make_keyboard_event = (char: string, key: readline.Key) => {
 let block_global_keypress = false;
 
 export const setup_keypress_events = (term: WrappedTerminal) => {
+    if (!process.stdin.isTTY) {
+        // don't set up keypresses if stdin is not a TTY (e.g. piped)
+        return;
+    }
+
     readline.emitKeypressEvents(process.stdin);
     process.stdin.setRawMode(true);
     process.stdin.resume();

@@ -91,26 +91,64 @@ const main = async () => {
         process.exit(0);
     };
 
-    // set terminal size
-    term.resize(process.stdout.columns, process.stdout.rows);
-
-    // listen for SIGWINCH to resize the terminal
-    process.on("SIGWINCH", () => {
-        term.resize(process.stdout.columns, process.stdout.rows);
-    });
-
-    // clear the console if --no-clear is not set (looks cleaner)
-    if (!process.argv.includes("--no-clear")) {
-        console.clear();
-    }
-
-    // finalise the init process now our changes are made
-    term.initialise(loaded);
-
-    // read the version variable ($VERSION)
     term.set_variable("VERSION", version);
-
     term.set_variable("ENV", "node");
+
+    if (process.stdin.isTTY) {
+        // interactive tty
+
+        // set terminal size
+        term.resize(process.stdout.columns, process.stdout.rows);
+
+        // listen for SIGWINCH to resize the terminal
+        process.on("SIGWINCH", () => {
+            term.resize(process.stdout.columns, process.stdout.rows);
+        });
+
+        // clear the console if --no-clear is not set (looks cleaner)
+        if (!process.argv.includes("--no-clear")) {
+            console.clear();
+        }
+
+        // finalise the init process as usual
+        term.initialise(loaded);
+    } else {
+        // being piped input
+
+        // TODO: option to disable ANSI for piping stdout to a file
+
+        // only mount usr bin, do not load .ollie_profile and .ollierc as the initialise function does
+        await term._mount_usr_bin();
+
+        // read stdin and write it to the terminal
+        let input = "";
+        process.stdin.on("data", async (chunk) => {
+            input += chunk.toString();
+
+            // if got a newline, execute the command so far
+            if (input.includes("\n")) {
+                const split_command = input.split("\n");
+                const current_command = split_command.shift() || "";
+                const leftover = split_command.join("\n");
+
+                // execute the command
+                await term.execute(current_command.trim());
+
+                // reset the input to the remaining part
+                input = leftover;
+            }
+        });
+
+        process.stdin.on("end", async () => {
+            if (input.trim()) {
+                // execute the final remaining input as a command if available
+                await term.execute(input.trim());
+            }
+
+            // then dispose the terminal
+            term.dispose();
+        });
+    }
 }
 
 main();
