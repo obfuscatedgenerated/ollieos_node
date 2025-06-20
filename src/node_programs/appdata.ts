@@ -12,9 +12,15 @@ export default {
         // extract from data to make code less verbose
         const { term } = data;
 
-        await open(appdata("ollieos/fs"));
+        const child = await open(appdata("ollieos/fs"));
 
         term.writeln("Opened app data directory.");
+
+        // wait for child process to close its pipes
+        // (fix early killing when piping "appdata" into ollieos)
+        await new Promise((resolve) => {
+            child.on("close", resolve);
+        });
 
         return 0;
     }
