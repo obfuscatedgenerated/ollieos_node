@@ -121,6 +121,8 @@ const main = async () => {
         await term._mount_usr_bin();
 
         // read stdin and write it to the terminal
+        // TODO: would it be simpler to just wait for the whole stdin and do all the execution on end?
+        //  the current way should be super quick but if it causes issues do this ^^^^
         let input = "";
         let have_leftover = false;
         let wait_for_finish = false;
