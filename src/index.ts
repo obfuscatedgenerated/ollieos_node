@@ -122,6 +122,7 @@ const main = async () => {
 
         // read stdin and write it to the terminal
         let input = "";
+        let have_leftover = false;
         process.stdin.on("data", async (chunk) => {
             input += chunk.toString();
 
@@ -136,12 +137,13 @@ const main = async () => {
 
                 // reset the input to the remaining part
                 input = leftover;
+                have_leftover = (leftover.trim() !== "");
             }
         });
 
         process.stdin.on("end", async () => {
-            if (input.trim()) {
-                // execute the final remaining input as a command if available
+            // if there is leftover input, execute it
+            if (have_leftover) {
                 await term.execute(input.trim());
             }
 
