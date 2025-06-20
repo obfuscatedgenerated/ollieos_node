@@ -120,43 +120,22 @@ const main = async () => {
         // only mount usr bin, do not load .ollie_profile and .ollierc as the initialise function does
         await term._mount_usr_bin();
 
-        // read stdin and write it to the terminal
-        // TODO: would it be simpler to just wait for the whole stdin and do all the execution on end?
-        //  the current way should be super quick but if it causes issues do this ^^^^
+        // read in whole of stdin
         let input = "";
-        let have_leftover = false;
-        let wait_for_finish = false;
         process.stdin.on("data", async (chunk) => {
             input += chunk.toString();
-
-            // if got a newline, execute the command so far
-            if (input.includes("\n")) {
-                const split_command = input.split("\n");
-                const current_command = split_command.shift() || "";
-                const leftover = split_command.join("\n");
-
-                // execute the command
-                wait_for_finish = true;
-                await term.execute(current_command.trim());
-                wait_for_finish = false;
-
-                // reset the input to the remaining part
-                input = leftover;
-                have_leftover = (leftover.trim() !== "");
-            }
         });
 
+        // got whole stdin
         process.stdin.on("end", async () => {
-            // if wait_for_finish is true, make sure to wait for it to be false so we don't interrupt the current command
-            // (fixes out of order execution / early killing race conditions)
-            while (wait_for_finish) {
-                // make sure to yield to avoid blocking the event loop
-                await new Promise(resolve => setTimeout(resolve, 20));
-            }
+            // execute each command split by newlines
+            const split_input = input.split("\n");
+            for (const line of split_input) {
+                if (line.trim() === "") {
+                    continue; // skip empty lines
+                }
 
-            // if there is leftover input, execute it
-            if (have_leftover) {
-                await term.execute(input.trim());
+                await term.execute(line.trim());
             }
 
             // then dispose the terminal
