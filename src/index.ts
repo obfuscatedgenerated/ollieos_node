@@ -21,6 +21,9 @@ const loaded = (term: WrappedTerminal) => {
     setup_keypress_events(term);
 }
 
+// TODO: surpress console logs and have jsdbg be the way to see them?
+// TODO: however jsdbg isnt mounting and not sure why
+
 const main = async () => {
     // create a program registry by importing all programs
     const prog_reg = new ProgramRegistry();
