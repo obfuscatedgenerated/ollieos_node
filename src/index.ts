@@ -21,10 +21,13 @@ const loaded = (term: WrappedTerminal) => {
     setup_keypress_events(term);
 }
 
-// TODO: surpress console logs and have jsdbg be the way to see them?
-// TODO: however jsdbg is opted out from node, cant remember why? might be a bug. investigate and maybe add better output
-
 const main = async () => {
+    // surpress console logs TODO: add command line flag to not do this. however they can use jsdbg once the os is running
+    console.log = () => {};
+    console.warn = () => {};
+    console.error = () => {};
+    console.table = () => {};
+
     // create a program registry by importing all programs
     const prog_reg = new ProgramRegistry();
     for (const prog of Object.values(programs)) {
