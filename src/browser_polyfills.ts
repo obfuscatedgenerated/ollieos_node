@@ -1,6 +1,6 @@
 import { appdata } from "./util";
 
-globalThis.window = globalThis;
+(globalThis as any).window = globalThis;
 // note that this breaks nodejs detection with typeof window, but we will provide a marker that it is running in node through a global and term variable
 
 import { LocalStorage } from "node-localstorage";
@@ -38,10 +38,10 @@ Object.defineProperty(Image.prototype, "src", {
     configurable: true,
 });
 
-globalThis.Image = Image;
+(globalThis as any).Image = Image;
 
-globalThis.document = {};
-globalThis.document.createElement = (tagName, options) => {
+(globalThis as any).document = {};
+(globalThis as any).document.createElement = (tagName: string, options: any) => {
     if (tagName === "canvas") {
         return createCanvas(800, 600);
     }
@@ -78,8 +78,8 @@ export const wait_for_safe_close = async () => {
 }
 
 // open urls in browser
-globalThis.location = {
-    assign(url) {
+(globalThis as any).location = {
+    assign(url: string | URL) {
         if (!(url instanceof URL)) {
             // convert relative paths to urls of ollieg.codes
             url = new URL(url, "https://ollieg.codes/");
@@ -114,9 +114,9 @@ Object.defineProperty(globalThis.location, "href", {
 
 globalThis.close = () => { process.exit(0); };
 
-globalThis.open = (url: string | URL, target?: string) => {
+(globalThis as any).open = (url: string | URL, target?: string) => {
     location.assign(url);
 }
 
 import { DOMParser } from "linkedom";
-globalThis.DOMParser = DOMParser;
+(globalThis as any).DOMParser = DOMParser;

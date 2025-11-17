@@ -53,6 +53,7 @@ const key_to_code = (name: string | undefined) => {
         'Delete': 'Delete',
     };
 
+    //@ts-ignore
     return keyMap[name] || "Unidentified";
 }
 

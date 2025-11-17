@@ -1,7 +1,8 @@
 import "ollieos/src/load_global_externals";
 import {wait_for_safe_close} from "./browser_polyfills";
 
-globalThis.OLLIEOS_NODE = true;
+// TODO: custom global interface
+(globalThis as any).OLLIEOS_NODE = true;
 
 import { ProgramRegistry } from "ollieos/src/prog_registry";
 import * as programs from "ollieos/src/programs/@ALL";
