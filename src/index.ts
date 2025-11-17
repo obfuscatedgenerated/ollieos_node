@@ -22,7 +22,7 @@ const loaded = (term: WrappedTerminal) => {
 }
 
 // TODO: surpress console logs and have jsdbg be the way to see them?
-// TODO: however jsdbg isnt mounting and not sure why
+// TODO: however jsdbg is opted out from node, cant remember why? might be a bug. investigate and maybe add better output
 
 const main = async () => {
     // create a program registry by importing all programs
