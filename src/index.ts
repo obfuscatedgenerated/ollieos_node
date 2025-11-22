@@ -50,7 +50,7 @@ const main = async () => {
     const oo_fs = new RealFS();
 
     // create initial files
-    initial_fs_setup(oo_fs);
+    await initial_fs_setup(oo_fs);
 
     // create a terminal using the registry and filesystem
     const term = new WrappedTerminal(oo_fs, prog_reg, undefined, {

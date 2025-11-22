@@ -27,6 +27,10 @@ export class RealFS extends AbstractFileSystem {
         return "real";
     }
 
+    async is_ready() {
+        return true;
+    }
+
     constructor() {
         super();
 
@@ -53,7 +57,7 @@ export class RealFS extends AbstractFileSystem {
         });
     }
 
-    erase_all(): void {
+    async erase_all() {
         // stop watcher
         if (this._watcher) {
             this._watcher.close();
@@ -71,7 +75,7 @@ export class RealFS extends AbstractFileSystem {
         }
     }
 
-    delete_dir_direct(path: string, recursive: boolean): void {
+    async delete_dir_direct(path: string, recursive: boolean) {
         const resolved_path = resolve_real_path(path);
 
         // check exists and is dir
@@ -88,7 +92,7 @@ export class RealFS extends AbstractFileSystem {
         fs.rmSync(resolved_path, { recursive, force: true });
     }
 
-    delete_file_direct(path: string): void {
+    async delete_file_direct(path: string) {
         const resolved_path = resolve_real_path(path);
 
         // check exists and is file
@@ -100,17 +104,17 @@ export class RealFS extends AbstractFileSystem {
         fs.rmSync(resolved_path, { force: true });
     }
 
-    dir_exists(path: string): boolean {
+    async dir_exists(path: string) {
         const resolved_path = resolve_real_path(path);
         return fs.existsSync(resolved_path) && fs.lstatSync(resolved_path).isDirectory();
     }
 
-    exists_direct(path: string): boolean {
+    async exists_direct(path: string) {
         const resolved_path = resolve_real_path(path);
         return fs.existsSync(resolved_path);
     }
 
-    list_dir(path: string, dirs_first?: boolean): string[] {
+    async list_dir(path: string, dirs_first?: boolean) {
         const resolved_path = resolve_real_path(path);
 
         // check if the path exists and is a directory
@@ -132,7 +136,7 @@ export class RealFS extends AbstractFileSystem {
         }
     }
 
-    make_dir(path: string): void {
+    async make_dir(path: string) {
         const resolved_path = resolve_real_path(path);
 
         // check if the directory already exists
@@ -144,7 +148,7 @@ export class RealFS extends AbstractFileSystem {
         fs.mkdirSync(resolved_path, { recursive: true });
     }
 
-    move_dir_direct(src: string, dest: string, no_overwrite: boolean, move_inside: boolean): void {
+    async move_dir_direct(src: string, dest: string, no_overwrite: boolean, move_inside: boolean) {
         const src_resolved = resolve_real_path(src);
         const dest_resolved = resolve_real_path(dest);
 
@@ -156,7 +160,7 @@ export class RealFS extends AbstractFileSystem {
         fs.renameSync(src_resolved, dest_resolved);
     }
 
-    move_file_direct(src: string, new_path: string): void {
+    async move_file_direct(src: string, new_path: string) {
         const src_resolved = resolve_real_path(src);
         const new_path_resolved = resolve_real_path(new_path);
 
@@ -168,7 +172,7 @@ export class RealFS extends AbstractFileSystem {
         fs.renameSync(src_resolved, new_path_resolved);
     }
 
-    read_file_direct(path: string, as_uint: boolean): string | Uint8Array {
+    async read_file_direct(path: string, as_uint: boolean) {
         const resolved_path = resolve_real_path(path);
 
         // check if the file exists
@@ -181,12 +185,12 @@ export class RealFS extends AbstractFileSystem {
         return as_uint ? new Uint8Array(data) : data.toString();
     }
 
-    is_readonly_direct(path: string): boolean {
+    async is_readonly_direct(path: string) {
         const readonly_list = JSON.parse(fs.readFileSync(readonly_list_path, "utf-8")) as string[];
         return readonly_list.includes(path);
     }
 
-    set_readonly_direct(path: string, readonly: boolean): void {
+    async set_readonly_direct(path: string, readonly: boolean) {
         const readonly_list = JSON.parse(fs.readFileSync(readonly_list_path, "utf-8")) as string[];
 
         if (readonly) {
@@ -205,7 +209,7 @@ export class RealFS extends AbstractFileSystem {
         }
     }
 
-    write_file_direct(path: string, data: string | Uint8Array): void {
+    async write_file_direct(path: string, data: string | Uint8Array) {
         const resolved_path = resolve_real_path(path);
 
         // ensure the directory exists
