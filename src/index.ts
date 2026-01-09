@@ -9,17 +9,11 @@ import * as programs from "ollieos/src/programs/@ALL";
 import * as node_programs from "./node_programs/@ALL";
 
 import { WrappedTerminal } from "ollieos/src/term_ctl";
+import { Kernel } from "ollieos/src/kernel";
 import { RealFS } from "./real_fs";
 import { initial_fs_setup } from "ollieos/src/initial_fs_setup";
 
-import { version } from "ollieos/package.json";
-
 import {setup_keypress_events} from "./keyboard";
-
-const loaded = (term: WrappedTerminal) => {
-    term.insert_preline();
-    setup_keypress_events(term);
-}
 
 const main = async () => {
     // surpress console logs TODO: add command line flag to not do this. however they can use jsdbg once the os is running
@@ -53,19 +47,23 @@ const main = async () => {
     await initial_fs_setup(oo_fs);
 
     // create a terminal using the registry and filesystem
-    const term = new WrappedTerminal(oo_fs, prog_reg, undefined, {
+    const term = new WrappedTerminal({
         screenReaderMode: false,
         cursorBlink: true,
     });
 
+    // create the kernel (sfx and window manager not yet supported)
+    const kernel = new Kernel(term, oo_fs, prog_reg, undefined, undefined);
+
     // now we run the custom logic to make it work with node!
 
-    // override term.execute to never set edit_doc_title to true
-    const old_execute = term.execute.bind(term);
-    term.execute = async (line) => {
-        // always set edit_doc_title to false
-        return old_execute(line, false);
-    };
+    // // override term.execute to never set edit_doc_title to true
+    // const old_execute = term.execute.bind(term);
+    // term.execute = async (line) => {
+    //     // always set edit_doc_title to false
+    //     return old_execute(line, false);
+    // };
+    // TODO: shells exist now, need to change the strategy here (prob just override document.title)
 
     // override term.reset
     const old_reset = term.reset.bind(term);
@@ -104,9 +102,6 @@ const main = async () => {
         process.exit(0);
     };
 
-    term.set_variable("VERSION", version);
-    term.set_variable("ENV", "node");
-
     if (process.stdin.isTTY) {
         // interactive tty
 
@@ -123,37 +118,47 @@ const main = async () => {
             console.clear();
         }
 
-        // finalise the init process as usual
-        term.initialise(loaded);
+        // add keypress events
+        setup_keypress_events(term);
+
+        // boot the kernel and check for a false return (indicating boot failure). should probably never return true as the os should hopefully always run!
+        const successful_finish = await kernel.boot();
+        if (!successful_finish) {
+            // restore cursor visibility just in case
+            term.write(term.ansi.CURSOR.visible);
+
+            process.exit(1);
+        }
     } else {
         // being piped input
 
         // TODO: option to disable ANSI for piping stdout to a file
 
-        // only mount usr bin, do not load .ollie_profile and .ollierc as the initialise function does
-        await term._mount_usr_bin();
+        console.log("Piped input temporarily not supported.");
+        process.exit(1);
 
-        // read in whole of stdin
-        let input = "";
-        process.stdin.on("data", async (chunk) => {
-            input += chunk.toString();
-        });
-
-        // got whole stdin
-        process.stdin.on("end", async () => {
-            // execute each command split by newlines
-            const split_input = input.split("\n");
-            for (const line of split_input) {
-                if (line.trim() === "") {
-                    continue; // skip empty lines
-                }
-
-                await term.execute(line.trim());
-            }
-
-            // then dispose the terminal
-            term.dispose();
-        });
+        // TODO: reimplement now we arent guaranteed to have the shell immediately run commands
+        // // read in whole of stdin
+        // let input = "";
+        // process.stdin.on("data", async (chunk) => {
+        //     input += chunk.toString();
+        // });
+        //
+        // // got whole stdin
+        // process.stdin.on("end", async () => {
+        //     // execute each command split by newlines
+        //     const split_input = input.split("\n");
+        //     for (const line of split_input) {
+        //         if (line.trim() === "") {
+        //             continue; // skip empty lines
+        //         }
+        //
+        //         await term.execute(line.trim());
+        //     }
+        //
+        //     // then dispose the terminal
+        //     term.dispose();
+        // });
     }
 }
 
