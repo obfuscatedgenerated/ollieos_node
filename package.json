@@ -1,15 +1,15 @@
 {
   "name": "ollieos_node",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "src/index.ts",
   "scripts": {
     "start": "tsx src/index.ts",
-    "start:no-clear": "npm run start -- -- --no-clear"
+    "start:no-clear": "npm run start -- -- --no-clear",
   },
   "keywords": [],
   "author": "obfuscatedgenerated",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "canvas": "^3.1.0",
     "linkedom": "^0.18.11",
