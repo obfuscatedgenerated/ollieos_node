@@ -81,15 +81,23 @@ const main = async () => {
     // });
     // seemingly not working, just override write and writeln instead (less stable)
     const old_write = term.write.bind(term);
-    term.write = (data: string) => {
+    term.write = (data, callback) => {
         old_write(data);
         process.stdout.write(data);
+
+        if (callback) {
+            callback();
+        }
     };
 
     const old_writeln = term.writeln.bind(term);
-    term.writeln = (data: string) => {
+    term.writeln = (data, callback) => {
         old_writeln(data);
         process.stdout.write(data + "\n");
+
+        if (callback) {
+            callback();
+        }
     };
 
     // override term.dispose for shutdown
