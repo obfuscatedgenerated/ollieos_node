@@ -15,6 +15,8 @@ import { initial_fs_setup } from "ollieos/src/initial_fs_setup";
 
 import {setup_keypress_events} from "./keyboard";
 
+import { version } from "ollieos/package.json";
+
 const main = async () => {
     // surpress console logs TODO: add command line flag to not do this. however they can use jsdbg once the os is running
     console.log = () => {};
@@ -54,6 +56,7 @@ const main = async () => {
 
     // create the kernel (sfx and window manager not yet supported)
     const kernel = new Kernel(term, oo_fs, prog_reg, undefined, undefined);
+    kernel.set_env_info(version, "node");
 
     // now we run the custom logic to make it work with node!
 
