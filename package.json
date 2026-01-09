@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "tsx src/index.ts",
-    "start:no-clear": "npm run start -- -- --no-clear",
+    "start:no-clear": "npm run start -- -- --no-clear"
   },
   "keywords": [],
   "author": "obfuscatedgenerated",
