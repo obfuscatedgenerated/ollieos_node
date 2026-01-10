@@ -7,7 +7,7 @@ ALL RIGHTS RESERVED.
    This software and its associated source code files (the "Source Code") are the
    proprietary and confidential property of obfuscatedgenerated.
 
-   Except as expressly provided in Section 2 below, YOU MAY NOT:
+   Except as expressly provided in Sections 2-3 below, YOU MAY NOT:
    a. Copy, modify, distribute, sell, or transfer the Source Code, in whole or
       in part, to any third party.
    b. Reverse engineer, decompile, or disassemble the Source Code.
@@ -18,7 +18,15 @@ ALL RIGHTS RESERVED.
    a. Download and view the Source Code.
    b. Compile, build, and execute the Source Code for personal use.
 
-3. DISCLAIMER
+3. EXCEPTION FOR CONTRIBUTIONS
+   Users are permitted to fork and modify the Source Code for the sole purpose
+   of developing patches, bug fixes, or features to be submitted back to the
+   original repository via Pull Request.
+
+   All contributions are subject to the project's Contributor License
+   Agreement (CLA).
+
+4. DISCLAIMER
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
