@@ -1,5 +1,5 @@
 import readline from "node:readline";
-import type { WrappedTerminal } from "ollieos/src/term_ctl";
+import type { WrappedTerminal } from "ollieos/src/kernel/term_ctl";
 
 const key_to_code = (name: string | undefined) => {
     if (!name) {

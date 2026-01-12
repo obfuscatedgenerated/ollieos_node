@@ -4,12 +4,15 @@ import {wait_for_safe_close} from "./browser_polyfills";
 // TODO: custom global interface
 (globalThis as any).OLLIEOS_NODE = true;
 
-import { ProgramRegistry } from "ollieos/src/prog_registry";
+import { ProgramRegistry } from "ollieos/src/kernel/prog_registry";
+import type { Program } from "ollieos/src/types";
+
 import * as programs from "ollieos/src/programs/@ALL";
 import * as node_programs from "./node_programs/@ALL";
 
-import { WrappedTerminal } from "ollieos/src/term_ctl";
+import { WrappedTerminal } from "ollieos/src/kernel/term_ctl";
 import { Kernel } from "ollieos/src/kernel";
+
 import { RealFS } from "./real_fs";
 import { initial_fs_setup } from "ollieos/src/initial_fs_setup";
 
@@ -27,16 +30,16 @@ const main = async () => {
     // create a program registry by importing all programs
     const prog_reg = new ProgramRegistry();
     for (const prog of Object.values(programs)) {
-        prog_reg.registerProgram({
-            program: prog,
+        await prog_reg.registerProgram({
+            program: prog as Program<unknown>,
             built_in: true,
         });
     }
 
     // also inject our node specific programs
     for (const prog of Object.values(node_programs)) {
-        prog_reg.registerProgram({
-            program: prog,
+        await prog_reg.registerProgram({
+            program: prog as Program<unknown>,
             built_in: true,
         });
     }

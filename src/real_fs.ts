@@ -1,4 +1,4 @@
-import {AbstractFileSystem, NonRecursiveDirectoryError, PathNotFoundError} from "ollieos/src/filesystem";
+import {AbstractFileSystem, NonRecursiveDirectoryError, PathNotFoundError} from "ollieos/src/kernel/filesystem";
 
 import fs from "node:fs";
 import nodepath from "node:path";
@@ -148,7 +148,9 @@ export class RealFS extends AbstractFileSystem {
         fs.mkdirSync(resolved_path, { recursive: true });
     }
 
-    async move_dir_direct(src: string, dest: string, no_overwrite: boolean, move_inside: boolean) {
+    async move_dir_direct(src: string, dest: string, move_inside: boolean) {
+        // TODO: is this implemented as its meant to be?
+
         const src_resolved = resolve_real_path(src);
         const dest_resolved = resolve_real_path(dest);
 

@@ -1,6 +1,6 @@
 import type { Program } from "ollieos/src/types";
 
-import { ANSI, NEWLINE } from "ollieos/src/term_ctl";
+import { ANSI, NEWLINE } from "ollieos/src/kernel/term_ctl";
 
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
