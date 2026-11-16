@@ -1,5 +1,5 @@
 import readline from "node:readline";
-import type { WrappedTerminal } from "ollieos/src/kernel/term_ctl";
+import type { NodeTerminal } from "./node_terminal";
 
 const key_to_code = (name: string | undefined) => {
     if (!name) {
@@ -87,9 +87,7 @@ const make_keyboard_event = (char: string, key: readline.Key) => {
     });
 }
 
-let block_global_keypress = false;
-
-export const setup_keypress_events = (term: WrappedTerminal) => {
+export const setup_keypress_events = (term: NodeTerminal) => {
     if (!process.stdin.isTTY) {
         // don't set up keypresses if stdin is not a TTY (e.g. piped)
         return;
@@ -103,10 +101,6 @@ export const setup_keypress_events = (term: WrappedTerminal) => {
         if (char === "\u0003") { // Ctrl+C
             // TODO: remove this but fix shutdown
             process.exit(0);
-        }
-
-        if (block_global_keypress) {
-            return;
         }
 
         // TODO: hide unhandled key event console warning
@@ -160,29 +154,9 @@ export const setup_keypress_events = (term: WrappedTerminal) => {
 
         const dom_keyboard_event = make_keyboard_event(char, key);
 
-        term._enqueue_key_event({
+        term.handle_key({
             key: char,
             domEvent: dom_keyboard_event,
         });
     });
-
-    // override term.wait_for_keypress to use readline rather than using the xterm disposables
-    // TODO: somewhat broken with pasting
-    term.wait_for_keypress = async () => {
-        return new Promise((resolve) => {
-            const key_pressed = (char: string, key: readline.Key) => {
-                process.stdin.off("keypress", key_pressed);
-                block_global_keypress = false;
-
-                const dom_keyboard_event = make_keyboard_event(char, key);
-                resolve({
-                    key: char,
-                    domEvent: dom_keyboard_event,
-                });
-            };
-
-            block_global_keypress = true;
-            process.stdin.on("keypress", key_pressed);
-        });
-    };
 }

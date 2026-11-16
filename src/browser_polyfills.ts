@@ -1,4 +1,17 @@
+import fs from "node:fs";
+import Module from "node:module";
 import { appdata } from "./util";
+
+// the os bundler imports some files as raw text with a ?raw query (e.g. xterm's css for windowed terminals), which node would otherwise try to run as code
+const original_load = (Module as any)._load;
+(Module as any)._load = function (request: unknown, parent: NodeJS.Module, is_main: boolean) {
+    if (typeof request === "string" && request.endsWith("?raw")) {
+        const file_path = (Module as any)._resolveFilename(request.slice(0, -"?raw".length), parent, is_main);
+        return fs.readFileSync(file_path, "utf8");
+    }
+
+    return original_load.apply(this, arguments);
+};
 
 (globalThis as any).window = globalThis;
 // note that this breaks nodejs detection with typeof window, but we will provide a marker that it is running in node through a global and term variable
@@ -50,73 +63,30 @@ Object.defineProperty(Image.prototype, "src", {
     return null;
 };
 
-import open_path from "open";
-import { URL } from "node:url";
+import { DOMParser } from "linkedom";
+(globalThis as any).DOMParser = DOMParser;
 
-let await_this_before_close: Promise<{on: (event: string, callback: (value: unknown) => void) => void}> | null = null;
-export const wait_for_safe_close = async () => {
-    if (await_this_before_close) {
-        const child_process = await await_this_before_close;
+// opening urls goes through the platform api now, but a few builtins (legacy, recovery) and the kernel's reboot still use location directly
+let open_url: ((url: string) => Promise<void>) | null = null;
 
-        // set a timeout to ensure we don't wait forever
-        // since we don't know what they're trying to open, it may not act as expected
-        setTimeout(() => {
-            if (await_this_before_close) {
-                console.warn("Timed out waiting for child process to close its pipes.");
-                await_this_before_close = null;
-            }
-        }, 5000);
+export const set_location_url_opener = (opener: (url: string) => Promise<void>) => {
+    open_url = opener;
+};
 
-        // wait for the child process to close its pipes
-        // this hack primarily solves windows issues but i have no idea how it behaves on other platforms (please raise an issue if it gets stuck!)
-        await new Promise((resolve) => {
-            child_process.on("close", resolve);
-        });
-
-        await_this_before_close = null;
-    }
-}
-
-// open urls in browser
 (globalThis as any).location = {
     assign(url: string | URL) {
-        if (!(url instanceof URL)) {
-            // convert relative paths to urls of ollieg.codes
-            url = new URL(url, "https://ollieg.codes/");
+        if (!open_url) {
+            console.warn("Can't open URLs before the platform API is ready.");
+            return;
         }
 
-        // this is a hack to ensure we actually open the applications requested before stopping the os
-        // e.g. it fixes echo "repo" | ollieos
-        // this would be so much simpler if location.assign was async... sigh
-        await_this_before_close = open_path(url.toString());
-    },
-
-    replace(url: string | URL) {
-        this.assign(url);
-        process.exit(0);
+        // relative paths are relative to the website
+        open_url(new URL(url, "https://ollieg.codes/").toString());
     },
 
     reload() {
         // TODO: restart the app somehow?
         console.warn("Reload not supported, please run the program again to continue.");
         process.exit(0);
-    }
-}
-
-Object.defineProperty(globalThis.location, "href", {
-    get() {
-        return "https://ollieg.codes";
     },
-    set(value) {
-        location.assign(value);
-    }
-});
-
-globalThis.close = () => { process.exit(0); };
-
-(globalThis as any).open = (url: string | URL, target?: string) => {
-    location.assign(url);
-}
-
-import { DOMParser } from "linkedom";
-(globalThis as any).DOMParser = DOMParser;
+};

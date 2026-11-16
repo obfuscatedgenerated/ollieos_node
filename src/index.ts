@@ -1,21 +1,21 @@
-import "ollieos/src/load_global_externals";
-import {wait_for_safe_close} from "./browser_polyfills";
+import {set_location_url_opener} from "./browser_polyfills";
 
 // TODO: custom global interface
 (globalThis as any).OLLIEOS_NODE = true;
 
-import { ProgramRegistry } from "ollieos/src/kernel/prog_registry";
-import type { Program } from "ollieos/src/types";
+import type { KernelFuncs, Program, ThreadFuncs } from "ollieos/src/types";
 
-import * as programs from "ollieos/src/programs/@ALL";
-import * as node_programs from "./node_programs/@ALL";
+import * as builtin_modules from "ollieos/src/programs/@ALL";
+import * as node_modules from "./node_programs/@ALL";
 
-import { WrappedTerminal } from "ollieos/src/kernel/term_ctl";
-import { Kernel } from "ollieos/src/kernel";
+import { Kernel, type VirtualProgram } from "ollieos/src/kernel";
+import { ANSI } from "ollieos/src/lib/ansi";
 
 import { RealFS } from "./real_fs";
 import { initial_fs_setup } from "ollieos/src/initial_fs_setup";
 
+import { NodeTerminal } from "./node_terminal";
+import { NodePlatformAPI } from "./node_platform";
 import {setup_keypress_events} from "./keyboard";
 
 import { version } from "ollieos/package.json";
@@ -26,91 +26,57 @@ const main = async () => {
     console.warn = () => {};
     console.error = () => {};
     console.table = () => {};
+    console.debug = () => {};
+    console.info = () => {};
 
-    // create a program registry by importing all programs
-    const prog_reg = new ProgramRegistry();
-    for (const prog of Object.values(programs)) {
-        await prog_reg.registerProgram({
-            program: prog as Program<unknown>,
-            built_in: true,
-        });
+    // construct virtual programs (inline kernel funcs) from the builtins, and our node specific programs
+    const builtin_programs: Record<string, Program> = {};
+    const virtual_programs = new Map<string, VirtualProgram>();
+
+    for (const [name, module] of Object.entries({...builtin_modules, ...node_modules})) {
+        const program = module.default as Program;
+
+        // some builtins only make sense in a browser
+        if (program.node_opt_out) {
+            continue;
+        }
+
+        const {kernel_funcs, threads} = module as {kernel_funcs?: KernelFuncs, threads?: ThreadFuncs};
+
+        builtin_programs[name] = program;
+        virtual_programs.set(name, {...program, kernel_funcs, threads});
     }
-
-    // also inject our node specific programs
-    for (const prog of Object.values(node_programs)) {
-        await prog_reg.registerProgram({
-            program: prog as Program<unknown>,
-            built_in: true,
-        });
-    }
-
 
     // create a filesystem
     const oo_fs = new RealFS();
 
     // create initial files
-    await initial_fs_setup(oo_fs);
+    await initial_fs_setup(oo_fs, builtin_programs);
 
-    // create a terminal using the registry and filesystem
-    const term = new WrappedTerminal({
-        screenReaderMode: false,
-        cursorBlink: true,
+    // create a terminal that draws to stdout
+    const term = new NodeTerminal();
+
+    // opening urls (including from the few places still using location) goes through the platform api
+    const platform = new NodePlatformAPI();
+    set_location_url_opener((url) => platform.open_url(url));
+
+    // create the kernel (window manager, network and isothreads not yet supported)
+    const kernel = new Kernel({
+        term,
+        fs: oo_fs,
+        platform,
+        virtual_programs,
     });
-
-    // create the kernel (sfx and window manager not yet supported)
-    const kernel = new Kernel(term, oo_fs, prog_reg, undefined, undefined);
     kernel.set_env_info(version, "node");
 
     // now we run the custom logic to make it work with node!
 
-    // // override term.execute to never set edit_doc_title to true
-    // const old_execute = term.execute.bind(term);
-    // term.execute = async (line) => {
-    //     // always set edit_doc_title to false
-    //     return old_execute(line, false);
-    // };
-    // TODO: shells exist now, need to change the strategy here (prob just override document.title)
-
-    // override term.reset
-    const old_reset = term.reset.bind(term);
-    term.reset = () => {
-        old_reset();
-        console.clear();
-    };
-
-    // // push xterm stdout to the terminal
-    // term.onData((data: string) => {
-    //     process.stdout.write(data);
-    // });
-    // seemingly not working, just override write and writeln instead (less stable)
-    const old_write = term.write.bind(term);
-    term.write = (data, callback) => {
-        old_write(data);
-        process.stdout.write(data);
-
-        if (callback) {
-            callback();
-        }
-    };
-
-    const old_writeln = term.writeln.bind(term);
-    term.writeln = (data, callback) => {
-        old_writeln(data);
-        process.stdout.write(data + "\n");
-
-        if (callback) {
-            callback();
-        }
-    };
-
     // override term.dispose for shutdown
     const old_dispose = term.dispose.bind(term);
     term.dispose = async () => {
-        // check that browser polyfills is happy to close, wait if not
-        // this is a hack to fix "open" from being async, but location.assign having to be sync
-        // such that if a program was trying to open something but we are closing, it will wait for the open to finish
+        // wait for anything still being opened to hand off before exiting
         // this hack primarily solves windows issues but i have no idea how it behaves on other platforms (please raise an issue if it gets stuck!)
-        await wait_for_safe_close();
+        await platform.wait_for_pending_opens();
 
         old_dispose();
         process.exit(0);
@@ -139,7 +105,7 @@ const main = async () => {
         const successful_finish = await kernel.boot();
         if (!successful_finish) {
             // restore cursor visibility just in case
-            term.write(term.ansi.CURSOR.visible);
+            term.write(ANSI.CURSOR.visible);
 
             process.exit(1);
         }
